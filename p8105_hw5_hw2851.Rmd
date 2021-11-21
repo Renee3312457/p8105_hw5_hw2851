@@ -99,15 +99,56 @@ prob_2_data_pivoted =
   mutate(week = as.integer(week))
 prob_2_plot =
   prob_2_data_pivoted %>%
-  # select(week, value, filename_wo_extension) %>%
   group_by(filename_wo_extension) %>%
-  ggplot(aes(x = week, y = value, color = filename_wo_extension)) +
+  ggplot(aes(x = week, y = value, color = interaction(arm, subject_id))) +
     geom_line()
 
 prob_2_plot
 ```
 
+The plot above shows the observation values on each subject over time. It seems that the exp group generally has higher observation values than the control group; no apparent temporal trend can be observed.
+
 # Problem 3
 We first load the iris dataset and introduce missing values:
 ```{r}
+
+set.seed(10)
+
+iris_with_missing = iris %>% 
+  map_df(~replace(.x, sample(1:150, 20), NA)) %>%
+  mutate(Species = as.character(Species))
+```
+
+Then we implement the function that replaces missing values, and apply on the iris_with_missing dataset:
+```{r}
+
+# fill in missing value for a single value
+fill_missing_value = function(val, default_val) {
+  if (is.na(val)) {
+    default_val
+  }
+  else {
+    val
+  }
+}
+
+fill_missing_values = function(vec) {
+  if (length(vec) <= 0) {
+    stop("Error: not a valid vector")
+  }
+  
+  # check if it's numeric vector
+  if (is.numeric(vec)) {
+    # fill in with mean
+    mean_value = mean(vec, na.rm = TRUE)
+    map(.x = vec, ~ fill_missing_value(.x, mean_value))
+  }
+  else if(is.character(vec)) {
+    # fill in with "virginica"
+    map(.x = vec, ~ fill_missing_value(.x, "virginica"))
+  }
+}
+
+output = vector("list", length = 5)
+output = map(iris_with_missing, fill_missing_values)
 ```
