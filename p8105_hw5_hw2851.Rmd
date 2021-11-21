@@ -61,7 +61,9 @@ baltimore_test =
   prop.test(
     x = baltimore_summary %>% pull(unsolved),
     n = baltimore_summary %>% pull(n))
-
+```
+The estimated proportion of unsolved homicides and confidence intervals for Baltimore can be found below:
+```{r}
 baltimore_test %>%
   broom::tidy()  
 ```
